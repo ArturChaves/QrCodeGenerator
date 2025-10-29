@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="QrCodeGenerator.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:QrCodeGenerator.Controls"
+    Title="QR Generator">
+
+    <VerticalStackLayout Padding="24" Spacing="16">
+
+        <!-- Uso básico -->
+        <controls:QrView Text="https://api.seuservico.com/v1/mobile/activate?token=AAAA..." />
+
+        <!-- Customizado: cores e quiet zone -->
+        <controls:QrView Text="https://example.com"
+                         ForegroundColor="#222222"
+                         BackgroundColor2="#FAFAFA"
+                         QuietZone="6"
+                         WidthRequest="280"
+                         HeightRequest="280"/>
+
+        <!-- Módulo com tamanho exato (10px), sem ajustar ao espaço -->
+        <controls:QrView Text="HELLO PIXEL PERFECT"
+                         FitToAvailable="False"
+                         ModuleSize="10"
+                         PixelPerfect="True"
+                         ForegroundColor="DarkBlue"
+                         BackgroundColor2="White"
+                         WidthRequest="400"
+                         HeightRequest="400"/>
+
+    </VerticalStackLayout>
+</ContentPage>
