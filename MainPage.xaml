@@ -9,25 +9,13 @@
     <VerticalStackLayout Padding="24" Spacing="16">
 
         <!-- Uso básico -->
-        <controls:QrView Text="https://api.seuservico.com/v1/mobile/activate?token=AAAA..." />
-
-        <!-- Customizado: cores e quiet zone -->
-        <controls:QrView Text="https://example.com"
-                         ForegroundColor="#222222"
-                         BackgroundColor2="#FAFAFA"
-                         QuietZone="6"
-                         WidthRequest="280"
-                         HeightRequest="280"/>
-
-        <!-- Módulo com tamanho exato (10px), sem ajustar ao espaço -->
-        <controls:QrView Text="HELLO PIXEL PERFECT"
-                         FitToAvailable="False"
-                         ModuleSize="10"
-                         PixelPerfect="True"
-                         ForegroundColor="DarkBlue"
-                         BackgroundColor2="White"
-                         WidthRequest="400"
-                         HeightRequest="400"/>
+        <controls:QrView
+            HeightRequest="200"
+            WidthRequest="200"
+            Text="https://exemplo.com"
+            ForegroundColor="Black"
+            BackgroundColor2="White"
+            UseCircles="False" />
 
     </VerticalStackLayout>
 </ContentPage>

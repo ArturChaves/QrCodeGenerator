@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using QrCodeGenerator.Qr.Core;
 using QrSharp.Core;
 
 namespace QrSharp.Encoding

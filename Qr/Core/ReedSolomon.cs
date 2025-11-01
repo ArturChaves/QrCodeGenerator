@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QrSharp.Core
+namespace QrCodeGenerator.Qr.Core
 {
     public static class ReedSolomon
     {

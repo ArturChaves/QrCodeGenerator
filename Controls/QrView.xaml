@@ -4,7 +4,5 @@
              x:Class="QrCodeGenerator.Controls.QrView"
              x:Name="Root">
 
-    <GraphicsView x:Name="Canvas"
-                  HeightRequest="240"
-                  WidthRequest="240" />
+    <GraphicsView x:Name="Canvas"/>
 </ContentView>

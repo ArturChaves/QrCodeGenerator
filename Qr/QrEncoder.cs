@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using QrCodeGenerator.Qr.Core;
 using QrSharp.Core;
 using QrSharp.Encoding;
 using QrSharp.Matrix;

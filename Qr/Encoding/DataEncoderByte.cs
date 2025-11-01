@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using QrCodeGenerator.Qr.Core;
 using QrSharp.Core;
 
 namespace QrSharp.Encoding

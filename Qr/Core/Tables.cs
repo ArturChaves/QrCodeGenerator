@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace QrSharp.Core
+﻿namespace QrSharp.Core
 {
     public enum EccLevel { L, M, Q, H }
 
@@ -40,7 +37,7 @@ namespace QrSharp.Core
             { 17, new( 815, 28, ( 1,46), ( 5,47)) },
             { 18, new( 901, 26, ( 6,43), ( 4,44)) },
             { 19, new( 991, 26, ( 8,44), ( 0, 0)) },
-            { 20, new(1085, 26, ( 8,43), ( 4,44)) }, // v20-M: 8×43 + 4×44
+            { 20, new(1085, 26, ( 8,43), ( 4,44)) },
             { 21, new(1156, 26, ( 9,43), ( 4,44)) },
             { 22, new(1258, 28, ( 7,46), (10,47)) },
             { 23, new(1364, 28, ( 8,44), ( 8,45)) },

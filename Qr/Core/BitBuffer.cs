@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace QrSharp.Core
+namespace QrCodeGenerator.Qr.Core
 {
     public sealed class BitBuffer
     {
