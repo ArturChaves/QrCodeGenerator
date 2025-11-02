@@ -15,7 +15,7 @@
             Text="https://exemplo.com"
             ForegroundColor="Black"
             BackgroundColor2="White"
-            UseCircles="False" />
+            UseCircles="True" />
 
     </VerticalStackLayout>
 </ContentPage>

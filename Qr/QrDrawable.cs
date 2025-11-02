@@ -1,12 +1,5 @@
-﻿using System;
-using Microsoft.Maui.Graphics;
-
-namespace QrCodeGenerator.Controls.Drawables
+﻿namespace QrCodeGenerator.Controls.Drawables
 {
-    /// <summary>
-    /// Drawable de QR Code com opção para usar círculos nos módulos comuns.
-    /// Os 3 detectores sempre são quadrados com cantos arredondados.
-    /// </summary>
     public sealed class QrDrawable : IDrawable
     {
         private bool[,] _matrix;
@@ -20,7 +13,8 @@ namespace QrCodeGenerator.Controls.Drawables
             double moduleSize = 8.0,
             bool pixelPerfect = true,
             bool useCircles = false,
-            float finderCornerRadiusFactor = 0.15f
+            float finderCornerRadiusFactor = 0.35f,
+            float moduleCornerRadiusFactor = 0.38f
         )
         {
             _matrix = matrix ?? new bool[21, 21];
@@ -32,6 +26,7 @@ namespace QrCodeGenerator.Controls.Drawables
             PixelPerfect = pixelPerfect;
             UseCircles = useCircles;
             FinderCornerRadiusFactor = Math.Clamp(finderCornerRadiusFactor, 0f, 0.5f);
+            ModuleCornerRadiusFactor = Math.Clamp(moduleCornerRadiusFactor, 0f, 0.5f);
         }
 
         public bool[,] Matrix
@@ -47,11 +42,11 @@ namespace QrCodeGenerator.Controls.Drawables
         public double ModuleSize { get; set; } = 8.0;
         public bool PixelPerfect { get; set; } = true;
 
-        /// <summary>Se true, módulos fora dos detectores são círculos; senão, quadrados.</summary>
         public bool UseCircles { get; set; } = false;
 
-        /// <summary>Raio de canto dos detectores como fração do lado (0..0.5).</summary>
         public float FinderCornerRadiusFactor { get; set; } = 0.15f;
+
+        public float ModuleCornerRadiusFactor { get; set; } = 0.18f;
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
@@ -76,12 +71,10 @@ namespace QrCodeGenerator.Controls.Drawables
             float offX = dirtyRect.X + (dirtyRect.Width - totalW) / 2f;
             float offY = dirtyRect.Y + (dirtyRect.Height - totalH) / 2f;
 
-            // Detectores
             DrawFinderAt(canvas, offX, offY, s, 0, 0);
             DrawFinderAt(canvas, offX, offY, s, 0, n - 7);
             DrawFinderAt(canvas, offX, offY, s, n - 7, 0);
 
-            // Módulos restantes
             canvas.FillColor = ForegroundColor;
             int q = QuietZone;
 
@@ -96,9 +89,14 @@ namespace QrCodeGenerator.Controls.Drawables
                     float y = offY + (q + r) * s;
 
                     if (UseCircles)
+                    {
                         canvas.FillEllipse(x, y, s, s);
+                    }
                     else
-                        canvas.FillRectangle(x, y, s, s);
+                    {
+                        float rr = s * ModuleCornerRadiusFactor;
+                        FillRoundedRect(canvas, x, y, s, s, rr);
+                    }
                 }
             }
         }
