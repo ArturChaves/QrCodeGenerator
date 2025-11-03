@@ -1,8 +1,5 @@
-﻿using System;
-
-namespace QrCodeGenerator.Qr.Core
+﻿namespace QrCodeGenerator.Qr.Core
 {
-    /// <summary>GF(256) com polinômio primitivo 0x11D (QR Code).</summary>
     public sealed class GaloisField
     {
         private readonly int[] _exp = new int[512];

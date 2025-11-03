@@ -1,6 +1,7 @@
-﻿namespace QrSharp.Core
+﻿// Tables.cs
+namespace QrSharp.Core
 {
-    public enum EccLevel { L, M, Q, H }
+    public enum EccLevel { L = 0, M = 1, Q = 2, H = 3 }
 
     public readonly record struct EccBlockSpec(
         int TotalCodewords,
@@ -10,66 +11,14 @@
 
     public interface IEccTableProvider
     {
-        EccBlockSpec GetSpec(int version); // 1..40
-    }
-
-    public sealed class EccTableM : IEccTableProvider
-    {
-        // ISO/IEC 18004 (M). Comentários: exemplos por versão.
-        private static readonly Dictionary<int, EccBlockSpec> M = new()
-        {
-            {  1, new(  26, 10, ( 1,16), ( 0, 0)) },
-            {  2, new(  44, 16, ( 1,28), ( 0, 0)) },
-            {  3, new(  70, 26, ( 1,44), ( 0, 0)) },
-            {  4, new( 100, 18, ( 2,32), ( 0, 0)) },
-            {  5, new( 134, 24, ( 2,43), ( 0, 0)) },
-            {  6, new( 172, 16, ( 4,27), ( 0, 0)) },
-            {  7, new( 196, 18, ( 4,31), ( 0, 0)) },
-            {  8, new( 242, 22, ( 2,38), ( 2,39)) },
-            {  9, new( 292, 22, ( 3,36), ( 2,37)) },
-            { 10, new( 346, 26, ( 4,43), ( 1,44)) },
-            { 11, new( 404, 30, ( 1,50), ( 4,51)) },
-            { 12, new( 466, 22, ( 6,36), ( 2,37)) },
-            { 13, new( 532, 22, ( 8,37), ( 1,38)) },
-            { 14, new( 581, 24, ( 4,40), ( 5,41)) },
-            { 15, new( 655, 24, ( 5,41), ( 5,42)) },
-            { 16, new( 733, 28, ( 7,45), ( 3,46)) },
-            { 17, new( 815, 28, ( 1,46), ( 5,47)) },
-            { 18, new( 901, 26, ( 6,43), ( 4,44)) },
-            { 19, new( 991, 26, ( 8,44), ( 0, 0)) },
-            { 20, new(1085, 26, ( 8,43), ( 4,44)) },
-            { 21, new(1156, 26, ( 9,43), ( 4,44)) },
-            { 22, new(1258, 28, ( 7,46), (10,47)) },
-            { 23, new(1364, 28, ( 8,44), ( 8,45)) },
-            { 24, new(1474, 28, (12,45), ( 5,46)) },
-            { 25, new(1588, 28, (14,45), ( 4,46)) },
-            { 26, new(1706, 28, ( 4,46), (18,47)) },
-            { 27, new(1828, 28, (13,46), ( 7,47)) },
-            { 28, new(1921, 28, (14,46), ( 7,47)) },
-            { 29, new(2051, 28, (12,45), (11,46)) },
-            { 30, new(2185, 28, ( 6,45), (14,46)) },
-            { 31, new(2323, 28, (14,45), (14,46)) },
-            { 32, new(2465, 28, (14,45), (14,46)) },
-            { 33, new(2611, 28, (14,45), (14,46)) },
-            { 34, new(2761, 28, (14,45), (14,46)) },
-            { 35, new(2876, 28, ( 6,45), (34,46)) },
-            { 36, new(3034, 28, (10,45), (34,46)) },
-            { 37, new(3196, 28, (14,45), (34,46)) },
-            { 38, new(3362, 28, (18,45), (34,46)) },
-            { 39, new(3532, 28, (22,45), (34,46)) },
-            { 40, new(3706, 28, (26,45), (34,46)) },
-        };
-
-        public EccBlockSpec GetSpec(int version)
-        {
-            if (version < 1 || version > 40) throw new ArgumentOutOfRangeException(nameof(version));
-            return M[version];
-        }
+        EccBlockSpec GetSpec(int version, EccLevel level); // 1..40
     }
 
     public static class Tables
     {
-        // Centros de alinhamento (v1 não tem)
+        // ----------------------------
+        // Alignment pattern centers
+        // ----------------------------
         public static readonly Dictionary<int, int[]> ALIGNMENT = new()
         {
             {1, Array.Empty<int>()},
@@ -93,5 +42,114 @@
 
         public static int VersionSize(int ver) => 17 + 4 * ver;
         public static int CountBitsForVersion(int ver) => (ver <= 9 ? 8 : 16);
+
+        // --------------------------------------------------------------------
+        // A partir do Project Nayuki (MIT). Índices: [ECC(L/M/Q/H)][version].
+        // ECC_CODEWORDS_PER_BLOCK[ecc, ver] = nº de codewords ECC por BLOCO.
+        // NUM_ERROR_CORRECTION_BLOCKS[ecc, ver] = nº de BLOCOS (podem ter
+        // comprimentos de dados diferentes: alguns "curtos", alguns "longos").
+        // Fontes: arrays publicados no código do projeto e na doc Doxygen.
+        // --------------------------------------------------------------------
+        private static readonly sbyte[,] ECC_CODEWORDS_PER_BLOCK = new sbyte[4, 41]
+        {
+            // L (index 0)
+            { -1,  7,10,15,20,26,18,20,24,30,18,20,24,26,30,22,24,28,30,28,28,28,28,30,30,26,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30 },
+            // M (index 1)
+            { -1, 10,16,26,18,24,16,18,22,22,26,30,22,22,24,24,28,28,26,26,26,26,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28 },
+            // Q (index 2)
+            { -1, 13,22,18,26,18,24,18,22,20,24,28,26,24,20,30,24,28,28,26,30,28,30,30,30,30,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30 },
+            // H (index 3)
+            { -1, 17,28,22,16,22,28,26,26,24,28,24,28,22,24,24,30,28,28,26,28,30,24,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30 }
+        };
+
+        private static readonly sbyte[,] NUM_ERROR_CORRECTION_BLOCKS = new sbyte[4, 41]
+        {
+            // L
+            { -1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9,10,12,12,12,13,14,15,16,17,18,19,19,20,21,22,24,25 },
+            // M
+            { -1,  1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9,10,10,11,13,14,16,17,17,18,20,21,23,25,26,28,29,31,33,35,37,38,40,43,45,47,49 },
+            // Q
+            { -1,  1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8,10,12,16,12,17,16,18,21,20,23,23,25,27,29,34,34,35,38,40,43,45,48,51,53,56,59,62,65,68 },
+            // H
+            { -1,  1, 1, 2, 4, 4, 4, 5, 6, 8, 8,11,11,16,16,18,16,19,21,25,25,25,34,30,32,35,37,40,42,45,48,51,54,57,60,63,66,70,74,77,81 }
+        };
+
+        // ----------------------------
+        // Cálculos de capacidade
+        // ----------------------------
+
+        // Nº de módulos "brutos" destinados a dados (inclui remainders),
+        // fórmula equivalente à usada pelo Nayuki.
+        public static int GetNumRawDataModules(int ver)
+        {
+            if (ver < 1 || ver > 40) throw new ArgumentOutOfRangeException(nameof(ver));
+            // (16*ver + 128)*ver + 64  ==  (4*ver + 17)^2
+            int result = (16 * ver + 128) * ver + 64;
+
+            if (ver >= 2)
+            {
+                int numAlign = ver / 7 + 2;                  // quantidade de alinhamentos numa direção
+                result -= (25 * numAlign - 10) * numAlign - 55;
+                if (ver >= 7) result -= 36;                  // 2 áreas de "version information"
+            }
+            return result;
+        }
+
+        // Nº de codewords de DADOS (descarta remainder bits)
+        public static int GetNumDataCodewords(int ver, EccLevel level)
+        {
+            int totalCodewords = GetNumRawDataModules(ver) / 8;
+            int eccPerBlock = ECC_CODEWORDS_PER_BLOCK[(int)level, ver];
+            int numBlocks = NUM_ERROR_CORRECTION_BLOCKS[(int)level, ver];
+            return totalCodewords - (eccPerBlock * numBlocks);
+        }
+
+        // Helpers para obter ECC por bloco e nº de blocos
+        public static int GetEccPerBlock(int ver, EccLevel level) =>
+            ECC_CODEWORDS_PER_BLOCK[(int)level, ver];
+
+        public static int GetNumBlocks(int ver, EccLevel level) =>
+            NUM_ERROR_CORRECTION_BLOCKS[(int)level, ver];
+    }
+
+    // ------------------------------------------------------------
+    // Provider que calcula Group1/Group2 dinamicamente (estilo Nayuki)
+    // ------------------------------------------------------------
+    public sealed class EccTableAuto : IEccTableProvider
+    {
+        /// <summary>
+        /// Retorna EccBlockSpec para a versão/nivel informados, com divisão correta
+        /// entre blocos "curtos" e "longos" em função do resto da divisão inteira.
+        /// </summary>
+        public EccBlockSpec GetSpec(int version, EccLevel level)
+        {
+            if (version < 1 || version > 40) throw new ArgumentOutOfRangeException(nameof(version));
+
+            int totalCodewords = Tables.GetNumRawDataModules(version) / 8;
+            int eccPerBlock = Tables.GetEccPerBlock(version, level);
+            int numBlocks = Tables.GetNumBlocks(version, level);
+
+            int totalEcc = eccPerBlock * numBlocks;
+            int totalData = totalCodewords - totalEcc;
+
+            // Distribuição dos dados entre os blocos:
+            // alguns blocos têm 'shortLen', e (totalData % numBlocks) blocos têm 'longLen = shortLen+1'
+            int longBlocks = totalData % numBlocks;
+            int shortBlocks = numBlocks - longBlocks;
+
+            int longLen = totalData / numBlocks + (longBlocks > 0 ? 1 : 0);
+            int shortLen = longLen - (longBlocks > 0 ? 1 : 0);
+
+            // Se não existir um dos grupos, mantemos (0,0)
+            var g1 = shortBlocks > 0 ? (shortBlocks, shortLen) : (0, 0);
+            var g2 = longBlocks > 0 ? (longBlocks, longLen) : (0, 0);
+
+            return new EccBlockSpec(
+                TotalCodewords: totalCodewords,
+                EcPerBlock: eccPerBlock,
+                Group1: g1,
+                Group2: g2
+            );
+        }
     }
 }

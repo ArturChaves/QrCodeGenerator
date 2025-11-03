@@ -8,7 +8,7 @@ namespace QrCodeGenerator.Qr.Core
         {
             int[] g = new[] { 1 };
             for (int i = 0; i < ecLen; i++)
-                g = gf.PolyMul(g, new[] { 1, gf.ExpAt(i) }); // (x + α^i)
+                g = gf.PolyMul(g, new[] { 1, gf.ExpAt(i) }); 
             return g;
         }
 

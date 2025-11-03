@@ -2,6 +2,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using QrCodeGenerator.Controls.Drawables;
 using QrCodeGenerator.Qr;
+using QrSharp.Core;
 
 namespace QrCodeGenerator.Controls
 {
@@ -14,7 +15,6 @@ namespace QrCodeGenerator.Controls
         {
             InitializeComponent();
 
-            // Cria o drawable desacoplado
             _drawable = new QrDrawable(
                 matrix: _qr,
                 foreground: Colors.Black,
@@ -27,10 +27,7 @@ namespace QrCodeGenerator.Controls
 
             Canvas.Drawable = _drawable;
 
-            // inicializa com valores padrão
             UpdateQr(Text);
-
-            // atualiza quando o layout muda (ex.: tamanho alterado)
             Canvas.SizeChanged += (_, __) => Canvas.Invalidate();
         }
 
@@ -102,30 +99,27 @@ namespace QrCodeGenerator.Controls
                     v.Canvas.Invalidate();
                 });
 
+        /// <summary>Se true, ajusta automaticamente a escala para caber na área disponível.</summary>
+        public bool FitToAvailable
+        {
+            get => (bool)GetValue(FitToAvailableProperty);
+            set => SetValue(FitToAvailableProperty, value);
+        }
 
         public static readonly BindableProperty UseCirclesProperty =
-    BindableProperty.Create(nameof(UseCircles), typeof(bool), typeof(QrView),
-        false, propertyChanged: (b, o, n) =>
-        {
-            var v = (QrView)b;
-            v._drawable.UseCircles = (bool)n;
-            v.Canvas.Invalidate();
-        });
+            BindableProperty.Create(nameof(UseCircles), typeof(bool), typeof(QrView),
+                false, propertyChanged: (b, o, n) =>
+                {
+                    var v = (QrView)b;
+                    v._drawable.UseCircles = (bool)n;
+                    v.Canvas.Invalidate();
+                });
 
         /// <summary>Define se os módulos comuns do QR serão círculos (true) ou quadrados (false).</summary>
         public bool UseCircles
         {
             get => (bool)GetValue(UseCirclesProperty);
             set => SetValue(UseCirclesProperty, value);
-        }
-
-
-
-        /// <summary>Se true, ajusta automaticamente a escala para caber na área disponível.</summary>
-        public bool FitToAvailable
-        {
-            get => (bool)GetValue(FitToAvailableProperty);
-            set => SetValue(FitToAvailableProperty, value);
         }
 
         public static readonly BindableProperty ModuleSizeProperty =
@@ -160,6 +154,27 @@ namespace QrCodeGenerator.Controls
             set => SetValue(PixelPerfectProperty, value);
         }
 
+        // ===== Correction Level =====
+
+        public static readonly BindableProperty CorrectionLevelProperty =
+            BindableProperty.Create(
+                nameof(CorrectionLevel),
+                typeof(EccLevel),
+                typeof(QrView),
+                EccLevel.M, // padrão
+                propertyChanged: (b, o, n) =>
+                {
+                    var v = (QrView)b;
+                    v.UpdateQr(v.Text);
+                });
+
+        /// <summary>Nível de correção de erro: L, M, Q ou H.</summary>
+        public EccLevel CorrectionLevel
+        {
+            get => (EccLevel)GetValue(CorrectionLevelProperty);
+            set => SetValue(CorrectionLevelProperty, value);
+        }
+
         // ===== Internals =====
 
         private void OnTextChanged(string? s)
@@ -172,12 +187,12 @@ namespace QrCodeGenerator.Controls
         {
             try
             {
-                _qr = QrEncoder.EncodeAutoM(content);
-                _drawable.Matrix = _qr; // atualiza a matriz no drawable externo
+                // agora usa a propriedade CorrectionLevel
+                _qr = QrEncoder.EncodeAuto(content, CorrectionLevel);
+                _drawable.Matrix = _qr;
             }
             catch
             {
-                // fallback para um QR mínimo vazio
                 _qr = new bool[21, 21];
                 _drawable.Matrix = _qr;
             }

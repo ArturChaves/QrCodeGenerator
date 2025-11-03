@@ -6,16 +6,35 @@
     xmlns:controls="clr-namespace:QrCodeGenerator.Controls"
     Title="QR Generator">
 
-    <VerticalStackLayout Padding="24" Spacing="16">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
 
         <!-- Uso básico -->
         <controls:QrView
             HeightRequest="200"
             WidthRequest="200"
-            Text="https://exemplo.com"
+            Text="hzzzzzzaaaa"
             ForegroundColor="Black"
             BackgroundColor2="White"
+            CorrectionLevel="H"
+            UseCircles="True" />
+        <controls:QrView
+            HeightRequest="200"
+            WidthRequest="200"
+            Text="https://exemplo.combbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombb"
+            ForegroundColor="Black"
+            BackgroundColor2="White"
+            CorrectionLevel="M"
+            UseCircles="True" />
+        <controls:QrView
+            HeightRequest="500"
+            WidthRequest="500"
+            Text="https://exemplo.200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200"
+            ForegroundColor="Black"
+            BackgroundColor2="White"
+            CorrectionLevel="H"
             UseCircles="True" />
 
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
