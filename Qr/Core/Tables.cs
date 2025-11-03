@@ -1,5 +1,4 @@
-﻿// Tables.cs
-namespace QrSharp.Core
+﻿namespace QrCodeGenerator.Qr.Core
 {
     public enum EccLevel { L = 0, M = 1, Q = 2, H = 3 }
 
@@ -16,9 +15,7 @@ namespace QrSharp.Core
 
     public static class Tables
     {
-        // ----------------------------
-        // Alignment pattern centers
-        // ----------------------------
+
         public static readonly Dictionary<int, int[]> ALIGNMENT = new()
         {
             {1, Array.Empty<int>()},
@@ -43,13 +40,6 @@ namespace QrSharp.Core
         public static int VersionSize(int ver) => 17 + 4 * ver;
         public static int CountBitsForVersion(int ver) => (ver <= 9 ? 8 : 16);
 
-        // --------------------------------------------------------------------
-        // A partir do Project Nayuki (MIT). Índices: [ECC(L/M/Q/H)][version].
-        // ECC_CODEWORDS_PER_BLOCK[ecc, ver] = nº de codewords ECC por BLOCO.
-        // NUM_ERROR_CORRECTION_BLOCKS[ecc, ver] = nº de BLOCOS (podem ter
-        // comprimentos de dados diferentes: alguns "curtos", alguns "longos").
-        // Fontes: arrays publicados no código do projeto e na doc Doxygen.
-        // --------------------------------------------------------------------
         private static readonly sbyte[,] ECC_CODEWORDS_PER_BLOCK = new sbyte[4, 41]
         {
             // L (index 0)
@@ -74,28 +64,20 @@ namespace QrSharp.Core
             { -1,  1, 1, 2, 4, 4, 4, 5, 6, 8, 8,11,11,16,16,18,16,19,21,25,25,25,34,30,32,35,37,40,42,45,48,51,54,57,60,63,66,70,74,77,81 }
         };
 
-        // ----------------------------
-        // Cálculos de capacidade
-        // ----------------------------
-
-        // Nº de módulos "brutos" destinados a dados (inclui remainders),
-        // fórmula equivalente à usada pelo Nayuki.
         public static int GetNumRawDataModules(int ver)
         {
             if (ver < 1 || ver > 40) throw new ArgumentOutOfRangeException(nameof(ver));
-            // (16*ver + 128)*ver + 64  ==  (4*ver + 17)^2
             int result = (16 * ver + 128) * ver + 64;
 
             if (ver >= 2)
             {
-                int numAlign = ver / 7 + 2;                  // quantidade de alinhamentos numa direção
+                int numAlign = ver / 7 + 2;                  
                 result -= (25 * numAlign - 10) * numAlign - 55;
-                if (ver >= 7) result -= 36;                  // 2 áreas de "version information"
+                if (ver >= 7) result -= 36;                  
             }
             return result;
         }
 
-        // Nº de codewords de DADOS (descarta remainder bits)
         public static int GetNumDataCodewords(int ver, EccLevel level)
         {
             int totalCodewords = GetNumRawDataModules(ver) / 8;
@@ -104,7 +86,6 @@ namespace QrSharp.Core
             return totalCodewords - (eccPerBlock * numBlocks);
         }
 
-        // Helpers para obter ECC por bloco e nº de blocos
         public static int GetEccPerBlock(int ver, EccLevel level) =>
             ECC_CODEWORDS_PER_BLOCK[(int)level, ver];
 
@@ -112,15 +93,8 @@ namespace QrSharp.Core
             NUM_ERROR_CORRECTION_BLOCKS[(int)level, ver];
     }
 
-    // ------------------------------------------------------------
-    // Provider que calcula Group1/Group2 dinamicamente (estilo Nayuki)
-    // ------------------------------------------------------------
     public sealed class EccTableAuto : IEccTableProvider
     {
-        /// <summary>
-        /// Retorna EccBlockSpec para a versão/nivel informados, com divisão correta
-        /// entre blocos "curtos" e "longos" em função do resto da divisão inteira.
-        /// </summary>
         public EccBlockSpec GetSpec(int version, EccLevel level)
         {
             if (version < 1 || version > 40) throw new ArgumentOutOfRangeException(nameof(version));
@@ -132,15 +106,12 @@ namespace QrSharp.Core
             int totalEcc = eccPerBlock * numBlocks;
             int totalData = totalCodewords - totalEcc;
 
-            // Distribuição dos dados entre os blocos:
-            // alguns blocos têm 'shortLen', e (totalData % numBlocks) blocos têm 'longLen = shortLen+1'
             int longBlocks = totalData % numBlocks;
             int shortBlocks = numBlocks - longBlocks;
 
             int longLen = totalData / numBlocks + (longBlocks > 0 ? 1 : 0);
             int shortLen = longLen - (longBlocks > 0 ? 1 : 0);
 
-            // Se não existir um dos grupos, mantemos (0,0)
             var g1 = shortBlocks > 0 ? (shortBlocks, shortLen) : (0, 0);
             var g2 = longBlocks > 0 ? (longBlocks, longLen) : (0, 0);
 

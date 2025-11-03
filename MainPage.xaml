@@ -14,8 +14,8 @@
             HeightRequest="200"
             WidthRequest="200"
             Text="hzzzzzzaaaa"
-            ForegroundColor="Black"
-            BackgroundColor2="White"
+            ForegroundColor="White"
+            QuietZoneColor="Blue"
             CorrectionLevel="H"
             UseCircles="True" />
         <controls:QrView
@@ -23,7 +23,6 @@
             WidthRequest="200"
             Text="https://exemplo.combbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombbcombb"
             ForegroundColor="Black"
-            BackgroundColor2="White"
             CorrectionLevel="M"
             UseCircles="True" />
         <controls:QrView
@@ -31,7 +30,6 @@
             WidthRequest="500"
             Text="https://exemplo.200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200200"
             ForegroundColor="Black"
-            BackgroundColor2="White"
             CorrectionLevel="H"
             UseCircles="True" />
 

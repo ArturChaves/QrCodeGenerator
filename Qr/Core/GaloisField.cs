@@ -24,7 +24,7 @@
             return _exp[_log[a] + _log[b]];
         }
 
-        public int ExpAt(int i) => _exp[i]; // α^i
+        public int ExpAt(int i) => _exp[i]; 
 
         internal int[] PolyMul(int[] p, int[] q)
         {

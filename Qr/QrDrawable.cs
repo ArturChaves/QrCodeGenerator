@@ -8,25 +8,14 @@
             bool[,] matrix,
             Color foreground,
             Color background,
-            int quietZone = 4,
-            bool fitToAvailable = true,
-            double moduleSize = 8.0,
             bool pixelPerfect = true,
-            bool useCircles = false,
-            float finderCornerRadiusFactor = 0.35f,
-            float moduleCornerRadiusFactor = 0.38f
+            bool useCircles = false
         )
         {
             _matrix = matrix ?? new bool[21, 21];
             ForegroundColor = foreground;
             BackgroundColor = background;
-            QuietZone = Math.Max(0, quietZone);
-            FitToAvailable = fitToAvailable;
-            ModuleSize = Math.Max(1.0, moduleSize);
-            PixelPerfect = pixelPerfect;
             UseCircles = useCircles;
-            FinderCornerRadiusFactor = Math.Clamp(finderCornerRadiusFactor, 0f, 0.5f);
-            ModuleCornerRadiusFactor = Math.Clamp(moduleCornerRadiusFactor, 0f, 0.5f);
         }
 
         public bool[,] Matrix
@@ -37,34 +26,27 @@
 
         public Color ForegroundColor { get; set; }
         public Color BackgroundColor { get; set; }
-        public int QuietZone { get; set; } = 4;
-        public bool FitToAvailable { get; set; } = true;
-        public double ModuleSize { get; set; } = 8.0;
-        public bool PixelPerfect { get; set; } = true;
-
+        public int QuietZone { get; set; } = 2;
         public bool UseCircles { get; set; } = false;
-
-        public float FinderCornerRadiusFactor { get; set; } = 0.15f;
-
-        public float ModuleCornerRadiusFactor { get; set; } = 0.18f;
-
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             var m = _matrix ?? new bool[21, 21];
             int n = m.GetLength(0);
 
             canvas.FillColor = BackgroundColor;
-            canvas.FillRectangle(dirtyRect);
+            float radius = MathF.Min(dirtyRect.Width, dirtyRect.Height) * 0.10f;
+            var path = new PathF();
+            path.AppendRoundedRectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height, radius);
+            canvas.FillPath(path);
 
             float s;
-            if (FitToAvailable)
-            {
-                float sX = dirtyRect.Width / (n + 2f * QuietZone);
-                float sY = dirtyRect.Height / (n + 2f * QuietZone);
-                s = MathF.Min(sX, sY);
-                if (PixelPerfect) s = MathF.Max(1, MathF.Floor(s));
-            }
-            else s = (float)ModuleSize;
+
+            float sX = dirtyRect.Width / (n + 2f * QuietZone);
+            float sY = dirtyRect.Height / (n + 2f * QuietZone);
+            s = MathF.Min(sX, sY);
+            s = MathF.Max(1, MathF.Floor(s));
+
+
 
             float totalW = (n + 2f * QuietZone) * s;
             float totalH = (n + 2f * QuietZone) * s;
@@ -94,7 +76,7 @@
                     }
                     else
                     {
-                        float rr = s * ModuleCornerRadiusFactor;
+                        float rr = s * 0.35f;
                         FillRoundedRect(canvas, x, y, s, s, rr);
                     }
                 }
@@ -113,9 +95,9 @@
             float midSize = 5 * s;
             float innerSize = 3 * s;
 
-            float rrOuter = outerSize * FinderCornerRadiusFactor;
-            float rrMid = midSize * FinderCornerRadiusFactor;
-            float rrInner = innerSize * FinderCornerRadiusFactor;
+            float rrOuter = outerSize * 0.35f;
+            float rrMid = midSize * 0.35f;
+            float rrInner = innerSize * 0.35f;
 
             canvas.FillColor = ForegroundColor;
             FillRoundedRect(canvas, x, y, outerSize, outerSize, rrOuter);

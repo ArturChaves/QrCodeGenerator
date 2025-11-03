@@ -1,5 +1,4 @@
 ﻿using QrCodeGenerator.Qr.Core;
-using QrSharp.Core;
 using QrSharp.Encoding;
 using QrSharp.Matrix;
 using System.Text;

@@ -1,4 +1,4 @@
-﻿using QrSharp.Core;
+﻿using QrCodeGenerator.Qr.Core;
 
 namespace QrSharp.Matrix
 {
